@@ -1,6 +1,6 @@
 module lfsr #(parameter c_LFSR_BITS = 10) (
     input i_clock,
-    output o_last_lfsr_bit,
+    output o_last_lfsr_bit
     );
     reg [c_LFSR_BITS-1:0] r_LFSR;
     wire w_XNOR_gate;
