@@ -1,4 +1,4 @@
-module lfsr #(parameter c_LFSR_BITS = 10) (
+module lfsr #(parameter c_LFSR_BITS = 7) (
     input i_clock,
     output o_last_lfsr_bit
     );

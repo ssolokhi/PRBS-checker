@@ -17,5 +17,4 @@ module prbs_checker_top (
         .o_is_locked(o_led_locked),
         .o_error(o_led_error)
     );
-
 endmodule
