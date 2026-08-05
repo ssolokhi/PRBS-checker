@@ -39,6 +39,15 @@ to be due to loss of lock.
 When the receiver locks onto the PRBS, a green LED lights up. For every error in the transmitted bit pattern, a 
 red LED lights up.
 
+## Verilog To SystemVerilog Transition
+
+In this repo, I am making a first attempt to switch from Verilog to SystemVerilog. Therefore, the codestyle is different from the
+previous projects.
+
+## Code Style
+
+I try to follow the [lowRISC](https://github.com/lowRISC/style-guides/blob/master/VerilogCodingStyle.md) SystemVerilog coding style guide.
+
 ## ToDo
 
 1. Replace internal signal transfer with physical routing using I\O pins + cables
