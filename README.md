@@ -9,6 +9,9 @@ The transmitter generates a PRBS using a *linear-feedback shift register* (LFSR)
 the last bit of the PRBS is sent away from the module. This allows testing serial data transfer, which is more 
 relevant for my job.
 
+To ensure that the PRBS has a maximal period ($s^{n_{bits}} - 1$), specific bits of the LFSR are XOR'ed, see 
+[Table 2.1 in this article](https://www.physics.otago.ac.nz/reports/electronics/ETR2012-1.pdf).
+
 ## Signal Transfer
 
 Currently, the PRBS pattern is sent via internal wiring. See ToDo list.
