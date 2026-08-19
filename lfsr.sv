@@ -4,6 +4,8 @@ module lfsr #(
 ) (
     input logic i_clock,
     input logic i_reset, // active-low reset to improve noise immunity
+    input logic i_load_enable,
+    input logic i_load_bit,
     output logic o_last_lfsr_bit
 );
     logic [c_LFSR_BITS-1:0] lfsr_bits;
@@ -22,9 +24,9 @@ module lfsr #(
     end
     
     always_ff @(posedge i_clock or negedge i_reset) begin
-       if (!i_reset) lfsr_bits <= c_LFSR_SEED;
-    else 
-       lfsr_bits <= {lfsr_bits[c_LFSR_BITS-2:0], xor_gate}; 
+        if (!i_reset) lfsr_bits <= c_LFSR_SEED;
+        else if (i_load_enable) lfsr_bits <= {lfsr_bits[c_LFSR_BITS-2:0], i_load_bit};
+        else lfsr_bits <= {lfsr_bits[c_LFSR_BITS-2:0], xor_gate}; 
     end
     assign o_last_lfsr_bit = lfsr_bits[c_LFSR_BITS-1]; // transmit 1 bit per clock cycle
 endmodule
