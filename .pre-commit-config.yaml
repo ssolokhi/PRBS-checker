@@ -1,5 +1,5 @@
 repos:
 - repo: https://github.com/verilator/verilator
-rev: v5.026 # or later
-hooks:
-- id: verilator
+  rev: v5.050 # or later
+  hooks:
+  - id: verilator

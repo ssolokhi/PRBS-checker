@@ -1,5 +1,5 @@
 module lfsr #(
-    parameter int c_LFSR_BITS = 7,
+    parameter int c_LFSR_BITS = 31,
     parameter logic [c_LFSR_BITS-1:0] c_LFSR_SEED = 'h1 // since all-zero seed is not allowed
 ) (
     input logic i_clock,

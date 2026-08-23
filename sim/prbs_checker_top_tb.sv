@@ -1,9 +1,6 @@
 module prbs_checker_top_tb ();
     localparam c_PRBS_BITS = 7;
 
-    logic r_led_locked = 1'b0;
-    logic r_led_error = 1'b0;
-    
     logic r_tb_clock = 1'b0;
     always #5 r_tb_clock <= !r_tb_clock;
     logic r_tb_reset = 1'b1;
@@ -45,12 +42,15 @@ module prbs_checker_top_tb ();
         end
     end
 
+    logic r_led_locked;
+    logic r_led_error;
+
     prbs_checker #(.c_LOCK_THRESHOLD(c_PRBS_BITS), .c_OPEN_THRESHOLD(c_PRBS_BITS)) prbs_checker_rx (
         .i_clock(r_tb_clock),
         .i_received_prbs_bit(received_prbs_bit_tx),
         .i_expected_prbs_bit(expected_prbs_bit_rx),
-        .o_is_locked(o_led_locked),
-        .o_error(o_led_error)
+        .o_is_locked(r_led_locked),
+        .o_error(r_led_error)
     );
 
     initial begin
