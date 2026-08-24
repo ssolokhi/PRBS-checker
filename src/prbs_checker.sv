@@ -1,3 +1,5 @@
+`default_nettype none
+
 module prbs_checker #(parameter int c_LOCK_THRESHOLD = 31, parameter int c_OPEN_THRESHOLD = 31) (
     input logic i_clock,
     input logic i_received_prbs_bit,

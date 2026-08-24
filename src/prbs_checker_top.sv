@@ -1,10 +1,13 @@
-module prbs_checker_top (
+`default_nettype none
+
+module prbs_checker_top #(
+    parameter c_PRBS_BITS = 31
+    )(
     input logic i_clock,
     input logic i_reset,
     output logic o_led_locked,
     output logic o_led_error
     );
-    localparam c_PRBS_BITS = 31;
     logic received_prbs_bit_tx;
     logic expected_prbs_bit_rx;
     logic load_enable_tx = 1'b0;
