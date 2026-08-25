@@ -24,11 +24,34 @@ module prbs_checker_top_tb ();
         release UUT.received_prbs_bit_tx;
     endtask
 
+    covergroup cg_check_fsm_transition @(posedge r_tb_clock);
+    // track transitions of signals below at each rising clock edge
+        option.per_instance = 1;
+
+        fsm_locked: coverpoint r_tb_is_locked {
+            bins open_to_locked = (1'b0 => 1'b1);
+            bins locked_to_open = (1'b1 => 1'b0);
+            bins stay_open = (1'b0 => 1'b0);
+            bins stay_locked = (1'b1 => 1'b1);
+        }
+
+        fsm_error: coverpoint r_tb_led_error {
+            bins error_asserted = (1'b0 => 1'b1);
+            bins error_cleared = (1'b1 => 1'b0);
+            bins reserve = default;
+        }
+        // track combinations of the two
+        fsm_cross_locked_error: cross fsm_locked, fsm_error;
+    endgroup;
+
+    cg_check_fsm_transition cg_inst = new();
 
     initial begin
+        cg_inst.stop(); // do not trak transitions at reset
         r_tb_reset <= 1'b1;
         repeat(2) @(posedge r_tb_clock);
         r_tb_reset <= 1'b0;
+        cg_inst.start();
 
         wait (r_tb_is_locked == 1'b1); 
         $display("%0t: RX PRBS checker acquired lock", $time);
@@ -47,6 +70,7 @@ module prbs_checker_top_tb ();
 
 
         $display("%0t: SUCCESS: all checks passed!", $time);
+        $display("Coverage if %0.2f% %", cg_inst.get_coverage());
         $finish;
     end
 
