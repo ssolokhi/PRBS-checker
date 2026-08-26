@@ -13,4 +13,4 @@ jobs:
         run: sudo apt update && sudo apt install -y verilator
 
       - name: Run verilator
-        run: verilator --lint-only -Wall --timing --top-module prbs_checker_top src/*.sv sim/*.sv
+        run: verilator --lint-only -Wall --bbox-unsup --timing --top-module prbs_checker_top src/*.sv sim/*.sv
