@@ -1,3 +1,5 @@
+[![Linter](https://github.com/ssolokhi/PRBS-checker/actions/workflows/linter.yaml/badge.svg)](https://github.com/ssolokhi/PRBS-checker/actions/workflows/linter.yaml)
+
 # PRBS-Checker
 
 Verilog code for measuring bit error rate of *pseudo-random bit sequences* (PRBS). The layout consists of 3 stages:
