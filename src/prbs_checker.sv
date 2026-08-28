@@ -5,8 +5,8 @@ module prbs_checker #(
     parameter int c_OPEN_THRESHOLD = 31,
     // int = 32 bits wide. To compare thresholds with counters without warnings from linter,
     // thresholds have to be resized to be same width as counters
-    parameter logic [$clog2(c_LOCK_THRESHOLD)-1:0] c_LOCK_THRESHOLD_resized = c_LOCK_THRESHOLD,
-    parameter logic [$clog2(c_LOCK_THRESHOLD)-1:0] c_OPEN_THRESHOLD_resized = c_OPEN_THRESHOLD
+    parameter logic [$clog2(c_LOCK_THRESHOLD)-1:0] c_LOCK_THRESHOLD_resized = $clog2(c_LOCK_THRESHOLD)'(c_LOCK_THRESHOLD),
+    parameter logic [$clog2(c_LOCK_THRESHOLD)-1:0] c_OPEN_THRESHOLD_resized = $clog2(c_LOCK_THRESHOLD)'(c_OPEN_THRESHOLD)
     ) (
     input logic i_clock,
     input logic i_received_prbs_bit,
