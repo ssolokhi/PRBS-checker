@@ -21,7 +21,7 @@ module lfsr #(
             // PRBS-31 polynomial is x**31 + x**28 + 1
             31: xor_gate = lfsr_bits[30] ^ lfsr_bits[27];
 
-            default: xor_gate = '0;    
+            default: xor_gate = 1'b0;    
         endcase
     end
     

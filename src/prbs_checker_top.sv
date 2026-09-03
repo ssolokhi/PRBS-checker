@@ -4,7 +4,7 @@ module prbs_checker_top #(
     parameter c_PRBS_BITS = 31
     )(
     input logic i_clock,
-    input logic i_reset,
+    input logic i_reset, // active-low
     output logic o_led_locked,
     output logic o_led_error
     );

@@ -1,7 +1,7 @@
 `default_nettype none
 
 module prbs_checker_top_tb ();
-    localparam c_PRBS_BITS = 7; // to simulate quicker, use 
+    localparam c_PRBS_BITS = 7; // to simulate quicker 
 
     logic r_tb_clock = 1'b0;
     always #5 r_tb_clock <= !r_tb_clock;
@@ -48,12 +48,15 @@ module prbs_checker_top_tb ();
     cg_check_fsm_transition cg_inst = new();
 
     initial begin
-        cg_inst.stop(); // do not trak transitions at reset
+        // test reset functionality
+        cg_inst.stop(); // do not track transitions at reset
+        r_tb_reset <= 1'b0; // since it's active-low
+        repeat(2) @(posedge r_tb_clock);
         r_tb_reset <= 1'b1;
         repeat(2) @(posedge r_tb_clock);
-        r_tb_reset <= 1'b0;
         cg_inst.start();
 
+        // test FSM state transitionss
         wait (r_tb_is_locked == 1'b1); 
         $display("%0t: RX PRBS checker acquired lock", $time);
         a_error_led_before_error: assert (r_tb_led_error == 1'b0) else $error("%0t: error LED driven before actual error detected", $time);
@@ -69,9 +72,8 @@ module prbs_checker_top_tb ();
         repeat(c_PRBS_BITS+1) inject_bit_error();
         a_lock_lost: assert (r_tb_is_locked == 1'b0) else $error("%0t: Lock not lost despite many errors", $time);
 
-
         $display("%0t: SUCCESS: all checks passed!", $time);
-        $display("Coverage if %0.2f% %", cg_inst.get_coverage());
+        $display("Coverage is %0.2f% %", cg_inst.get_coverage());
         $finish;
     end
 
