@@ -31,9 +31,7 @@ module lfsr_tb ();
         return {current_state[c_LFSR_BITS-2:0], xor_gate};
     endfunction
 
-    p_last_bit_sent_correctly: assert property (
-        @(posedge r_tb_clock) assert UUT.lfsr_bits[c_LFSR_BITS-1] == r_tb_last_lfsr_bit;
-    ) 
+    p_last_bit_sent_correctly: assert property (@(posedge r_tb_clock) UUT.lfsr_bits[c_LFSR_BITS-1] == r_tb_last_lfsr_bit) 
     else $error("%0t: LFSR did not send last bit correctly: expected %b, got %b", $time, UUT.lfsr_bits[c_LFSR_BITS-1], r_tb_last_lfsr_bit);
 
     initial begin

@@ -48,6 +48,7 @@ module prbs_checker_top_tb ();
     cg_check_fsm_transition cg_inst = new();
 
     initial begin
+        assert (c_PRBS_BITS inside {7, 31}) else $error("Unsupported value of c_PRBS_BITS");
         // test reset functionality
         cg_inst.stop(); // do not track transitions at reset
         r_tb_reset <= 1'b0; // since it's active-low
