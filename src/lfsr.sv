@@ -25,7 +25,7 @@ module lfsr #(
         endcase
     end
     
-    always_ff @(posedge i_clock or negedge i_reset) begin
+    always_ff @(posedge i_clock) begin
         if (!i_reset) lfsr_bits <= c_LFSR_SEED;
         else if (i_load_enable) lfsr_bits <= {lfsr_bits[c_LFSR_BITS-2:0], i_load_bit};
         else lfsr_bits <= {lfsr_bits[c_LFSR_BITS-2:0], xor_gate}; 

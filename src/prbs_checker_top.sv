@@ -31,7 +31,7 @@ module prbs_checker_top #(
     logic load_enable_rx = 1'b1;
     logic [$clog2(c_PRBS_BITS)-1:0] load_counter_rx = '0;
 
-    always_ff @(posedge i_clock or negedge i_reset) begin
+    always_ff @(posedge i_clock) begin
         if (!i_reset) begin
             load_counter_rx <= '0;
             load_enable_rx <= 1'b1;
@@ -48,7 +48,7 @@ module prbs_checker_top #(
 
     prbs_checker #(.c_LOCK_THRESHOLD(c_PRBS_BITS), .c_OPEN_THRESHOLD(c_PRBS_BITS)) prbs_checker_rx (
         .i_clock(i_clock),
-        .i_reset(i_reset),
+        .i_reset(i_reset),  
         .i_received_prbs_bit(received_prbs_bit_tx),
         .i_expected_prbs_bit(expected_prbs_bit_rx),
         .o_is_locked(o_led_locked),
