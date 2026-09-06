@@ -35,6 +35,9 @@ module lfsr_tb ();
     else $error("%0t: LFSR did not send last bit correctly: expected %b, got %b", $time, UUT.lfsr_bits[c_LFSR_BITS-1], r_tb_last_lfsr_bit);
 
     initial begin
+        $dumpfile("lfsr_tb.vcd");
+        $dumpvars(0, lfsr_tb);
+
         assert (c_LFSR_BITS inside {7, 31}) else $error("Unsupported value of c_LFSR_BITS");
 
         // check reset (active-low!) to default seed value

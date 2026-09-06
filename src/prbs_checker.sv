@@ -37,7 +37,6 @@ module prbs_checker #(
                 OPEN:
                 begin
                     error <= 1'b0; // error is meaningless when FSM not locked
-
                     if (i_received_prbs_bit == i_expected_prbs_bit) begin
                         if (lock_counter == c_LOCK_THRESHOLD_resized-1) begin
                             lock_counter <= 0;
@@ -48,12 +47,8 @@ module prbs_checker #(
                     end
                     else lock_counter <= 0; // because correct bits (if any) are not consecutive
                 end
-                end
                 LOCKED:
                 begin
-                    if (i_received_prbs_bit != i_expected_prbs_bit) error <= 1'b1;
-                    else if (i_received_prbs_bit != i_expected_prbs_bit) error <= 1'b0;
-
                     if (i_received_prbs_bit != i_expected_prbs_bit) begin
                         error <= 1'b1;
                         if (open_counter == c_OPEN_THRESHOLD_resized-1) begin

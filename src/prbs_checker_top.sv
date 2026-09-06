@@ -48,6 +48,7 @@ module prbs_checker_top #(
 
     prbs_checker #(.c_LOCK_THRESHOLD(c_PRBS_BITS), .c_OPEN_THRESHOLD(c_PRBS_BITS)) prbs_checker_rx (
         .i_clock(i_clock),
+        .i_reset(i_reset),
         .i_received_prbs_bit(received_prbs_bit_tx),
         .i_expected_prbs_bit(expected_prbs_bit_rx),
         .o_is_locked(o_led_locked),

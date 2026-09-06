@@ -24,6 +24,9 @@ module prbs_checker_tb ();
     );
 
     initial begin
+        $dumpfile("prbs_checker_tb.vcd");
+        $dumpvars(0, prbs_checker_tb);
+
         // check reset
         force UUT.current_state = UUT.LOCKED; // otherwise check below is meaningless 
         r_tb_reset <= 1'b0;
@@ -68,7 +71,7 @@ module prbs_checker_tb ();
 
         // check that OPEN -> LOCKED transition can happen again
         r_tb_received_bit <= 1'b1;
-        r_tb_expected_bit <= 1'b1s;
+        r_tb_expected_bit <= 1'b1;
         repeat(c_LOCK_THRESHOLD) @(posedge r_tb_clock);
         a_fsm_locks_correctly: assert (UUT.current_state == UUT.LOCKED && UUT.o_is_locked == 1'b1) else $error("%0t: FSM not in LOCKED state after enough (%d) matching bits", $time, c_LOCK_THRESHOLD);
 
