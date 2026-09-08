@@ -1,14 +1,15 @@
+#include <memory>
 #include "verilated.h"
-#include "Vout.h"
+#include "Vprbs_checker_top_tb.h" // generated from verilating the SystemVeriolg file
 
 int main(int argc, char **argv) {
-    VerilatedContext *verilatedContext = new VerilatedContext();
+    //Verilated::traceEverOn(true);
+    const std::unique_ptr<VerilatedContext> verilatedContext{new VerilatedContext};
     verilatedContext->commandArgs(argc, argv);
-    Vour *vour = new Vour{verilatedContext};
+    verilatedContext->traceEverOn(true);
+    const std::unique_ptr<Vprbs_checker_top_tb> prbsCheckerTop{new Vprbs_checker_top_tb{verilatedContext.get()}};
     while (!verilatedContext->gotFinish()) {
-        vour->eval();
+        prbsCheckerTop->eval();
     }
-    delete vour;
-    delete verilatedContext;
     return 0;
 }

@@ -10,7 +10,7 @@ module prbs_checker_top_tb ();
     logic r_tb_is_locked;
     logic r_tb_led_error;
 
-    prbs_checker_top #(.c_LFSR_BITS(c_PRBS_BITS)) UUT (
+    prbs_checker_top #(.c_PRBS_BITS(c_PRBS_BITS)) UUT (
         .i_clock(r_tb_clock),
         .i_reset(r_tb_reset),
         .o_led_locked(r_tb_is_locked),
@@ -37,8 +37,10 @@ module prbs_checker_top_tb ();
         }
 
         fsm_error: coverpoint r_tb_led_error {
-            bins error_asserted = (1'b0 => 1'b1);
-            bins error_cleared = (1'b1 => 1'b0);
+            //bins error_asserted = (1'b0 => 1'b1);
+            bins error_asserted = {1'b1};
+            //bins error_cleared = (1'b1 => 1'b0);
+            bins error_cleared = {1'b0};
             bins reserve = default;
         }
         // track combinations of the two
@@ -78,7 +80,7 @@ module prbs_checker_top_tb ();
         a_lock_lost: assert (r_tb_is_locked == 1'b0) else $error("%0t: Lock not lost despite many errors", $time);
 
         $display("%0t: SUCCESS: all checks passed!", $time);
-        $display("Coverage is %0.2f% %", cg_inst.get_coverage());
+        $display("Coverage is %0.2f %%", cg_inst.get_coverage());
         $finish;
     end
 

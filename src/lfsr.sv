@@ -15,6 +15,7 @@ module lfsr #(
 
     // select bit to XOR; see README for details
     always_comb begin
+        /* verilator lint_off SELRANGE */
         unique case (c_LFSR_BITS)
             // PRBS-7 polynomial is x**7 + x**6 + 1
             7: xor_gate = lfsr_bits[6] ^ lfsr_bits[5];
@@ -23,6 +24,7 @@ module lfsr #(
 
             default: xor_gate = 1'b0;    
         endcase
+        /* verilator lint_on SELRANGE */
     end
     
     always_ff @(posedge i_clock) begin
