@@ -1,6 +1,8 @@
 `default_nettype none
 
-module prbs_checker #(
+module prbs_checker
+    import prbs_checker_fsm_states::*;
+#(
     parameter int c_LOCK_THRESHOLD = 31,
     parameter int c_OPEN_THRESHOLD = 31,
     // int = 32 bits wide. To compare thresholds with counters without warnings from linter,
@@ -15,10 +17,6 @@ module prbs_checker #(
     output logic o_is_locked,
     output logic o_error
     );  
-
-    typedef enum logic {
-    OPEN, LOCKED
-    } state;
 
     logic [$clog2(c_LOCK_THRESHOLD)-1:0] lock_counter = 'b0;
     logic [$clog2(c_OPEN_THRESHOLD)-1:0] open_counter = 'b0;
