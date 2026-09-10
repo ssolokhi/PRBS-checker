@@ -10,14 +10,13 @@ module prbs_checker_top #(
     );
     logic received_prbs_bit_tx;
     logic expected_prbs_bit_rx;
-    logic load_enable_tx = 1'b0;
     logic load_enable_rx = 1'b1;
     logic [$clog2(c_PRBS_BITS)-1:0] load_counter_rx = '0;
 
     lfsr #(.c_LFSR_BITS(c_PRBS_BITS)) prbs_generator_tx (
         .i_clock(i_clock),
         .i_reset(i_reset),
-        .i_load_enable(load_enable_tx),
+        .i_load_enable(1'b0),
         .i_load_bit(1'b0),
         .o_last_lfsr_bit(received_prbs_bit_tx)
     );
@@ -29,7 +28,6 @@ module prbs_checker_top #(
         .i_load_bit(received_prbs_bit_tx),
         .o_last_lfsr_bit(expected_prbs_bit_rx)
     );
-
 
     always_ff @(posedge i_clock) begin
         if (!i_reset) begin
@@ -44,7 +42,6 @@ module prbs_checker_top #(
             else load_counter_rx <= load_counter_rx + 1;
         end
     end
-
 
     prbs_checker #(.c_LOCK_THRESHOLD(c_PRBS_BITS), .c_OPEN_THRESHOLD(c_PRBS_BITS)) prbs_checker_rx (
         .i_clock(i_clock),

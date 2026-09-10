@@ -2,6 +2,8 @@
 
 module lfsr_tb ();
     localparam c_LFSR_BITS = 7; // to simulate quicker 
+    int c_LFSR_PERIOD = (2**c_LFSR_BITS) - 1; // to simulate quicker 
+    localparam c_WAIT_FOR_SIGNALS_TO_SETTLE = 1;
 
     logic r_tb_clock = 1'b0;
     always #5 r_tb_clock <= !r_tb_clock;
@@ -10,6 +12,7 @@ module lfsr_tb ();
     logic r_tb_load_enable = 1'b0;
     logic r_tb_load_bit = 1'b0;
     logic r_tb_last_lfsr_bit;
+    logic [c_LFSR_BITS-1:0] r_tb_expected_next_state;
 
     lfsr #(.c_LFSR_BITS(c_LFSR_BITS)) UUT (
         .i_clock(r_tb_clock),
@@ -42,28 +45,35 @@ module lfsr_tb ();
         // check reset (active-low!) to default seed value
         r_tb_reset <= 1'b0;
         @(posedge r_tb_clock);
+        #c_WAIT_FOR_SIGNALS_TO_SETTLE;
         a_reset_to_default_seed: assert (UUT.lfsr_bits == UUT.c_LFSR_SEED) 
-        else $error("%0t: LFSR was not seeded correctly upon reset: expected %h, got %h", $time, UUT.c_LFSR_SEED, UUT.lfsr_bits);
+        else $error("%0t: LFSR was not seeded correctly upon reset: expected %b, got %b", $time, UUT.c_LFSR_SEED, UUT.lfsr_bits);
         r_tb_reset <= 1'b1;
         @(posedge r_tb_clock);
 
         // test bit loading
-        @(posedge r_tb_clock);
         r_tb_load_enable <= 1'b1;
-        a_load_bit_to_lfsr: assert (UUT.lfsr_bits == {UUT.lfsr_bits[c_LFSR_BITS-2:0], r_tb_load_bit}) 
-        else $error("%0t: LFSR bits do not match bits expected from contenating with loaded bit", $time);
+        @(posedge r_tb_clock);
+        r_tb_expected_next_state <= {UUT.lfsr_bits[c_LFSR_BITS-2:0], r_tb_load_bit};
+        #c_WAIT_FOR_SIGNALS_TO_SETTLE;
+        a_load_bit_to_lfsr: assert (UUT.lfsr_bits == r_tb_expected_next_state)
+        else $error("%0t: LFSR bits do not match bits expected from contenating with loaded bit: expected %b, got %b",
+        $time, UUT.lfsr_bits, r_tb_expected_next_state);
         @(posedge r_tb_clock);
         r_tb_load_enable <= 1'b0;
+        @(posedge r_tb_clock);
 
         // check that output is based on XOR tap
         repeat(2*c_LFSR_BITS) begin
-            automatic logic [c_LFSR_BITS-1:0] expected_next_state = get_next_state(UUT.lfsr_bits); 
             @(posedge r_tb_clock);
-            a_xor_appended_correctly: assert (expected_next_state == UUT.lfsr_bits) 
+            r_tb_expected_next_state <= get_next_state(UUT.lfsr_bits); 
+            #c_WAIT_FOR_SIGNALS_TO_SETTLE;
+            a_xor_appended_correctly: assert (r_tb_expected_next_state == UUT.lfsr_bits) 
             else $error("%0t: LFSR bits do not match bits expected from contenating with XOR gate outputs", $time);
         end
 
         // check that there are 2^{c_LFSR_BITS} - 1 unique, non-zero states
+        // reset to start counting from seed
         r_tb_reset <= 1'b0;
         @(posedge r_tb_clock);
         r_tb_reset <= 1'b1;
@@ -71,16 +81,16 @@ module lfsr_tb ();
 
         // state should now be the seed value
         begin
-            automatic int c_LFSR_PERIOD = (2**c_LFSR_BITS) - 1; // to simulate quicker 
             automatic bit seen_states [logic [c_LFSR_BITS-1:0]]; // store true\false values per LFSR state, accessed via LFSR state
-            for (int i = 0; i < c_LFSR_PERIOD; ++i) begin
+            // state[c_LFSR_PERIOD] will repeat and cause nonsensical
+            // assertion error => only check (c_LFSR_PERIOD - 1) states
+            for (int i = 0; i < c_LFSR_PERIOD - 1; i++) begin
                 a_nonzero_state: assert (UUT.lfsr_bits != '0) else $error("%0t: LFSR in illegal all-zero state", $time);
-
                 a_state_not_seen_before: assert (!seen_states.exists(UUT.lfsr_bits)) 
-                else $error("%0t: LFSR state already seen before LFSR period exceeded: %h ", $time, UUT.lfsr_bits);
-
+                else $error("%0t: LFSR state already seen before LFSR period exceeded: %b (iteration %d)", $time, UUT.lfsr_bits, i);
                 seen_states[UUT.lfsr_bits] = 1'b1;
                 @(posedge r_tb_clock);
+                #c_WAIT_FOR_SIGNALS_TO_SETTLE;
             end
             a_return_to_seed: assert (UUT.lfsr_bits == UUT.c_LFSR_SEED) 
             else $error("%0t: LFSR bits did not cycle back to seed value after LFSR period", $time);
@@ -92,8 +102,8 @@ module lfsr_tb ();
 
     // In case the UUT hangs and never reaches $finish
     initial begin
-        #1000;
-        $display("ERROR: testbench timeout");
+        #10000;
+        $error("ERROR: testbench timeout");
         $finish;
     end
 endmodule
