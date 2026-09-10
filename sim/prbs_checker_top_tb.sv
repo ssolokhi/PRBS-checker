@@ -67,7 +67,7 @@ module prbs_checker_top_tb ();
         $display("%0t: RX PRBS checker acquired lock", $time);
 
         $display("%0t: SUCCESS: all checks passed!", $time);
-        $display("Coverage is %0.2f %%", cg_inst.get_coverage());
+        $display("Coverage is %0.2f %%", cg_inst.get_inst_coverage());
         $finish;
     end
 

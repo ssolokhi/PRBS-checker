@@ -4,7 +4,7 @@
 #include "VLfsrTb.h" // generated from verilating the SystemVeriolg file
 
 int main(int argc, char **argv) {
-    const int SIMULATION_TIME = 1000;
+    const int SIMULATION_TIME = 10000; // 1000 is not enough for LFSR testbench
     const std::unique_ptr<VerilatedContext> verilatedContext{new VerilatedContext};
     verilatedContext->commandArgs(argc, argv);
     verilatedContext->traceEverOn(true);
