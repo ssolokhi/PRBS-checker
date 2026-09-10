@@ -21,11 +21,13 @@ module lfsr_tb ();
 
     function automatic [c_LFSR_BITS-1:0] get_next_state (input [c_LFSR_BITS-1:0] current_state);
         logic xor_gate;
+        /* verilator lint_off SELRANGE */
         unique case (c_LFSR_BITS)
-            7: xor_gate = lfsr_bits[6] ^ lfsr_bits[5];
-            31: xor_gate = lfsr_bits[30] ^ lfsr_bits[27];
+            7: xor_gate = current_state[6] ^ current_state[5];
+            31: xor_gate = current_state[30] ^ current_state[27];
             default: xor_gate = 1'b0;   
         endcase
+        /* verilator lint_on SELRANGE */
         return {current_state[c_LFSR_BITS-2:0], xor_gate};
     endfunction
 
@@ -33,11 +35,10 @@ module lfsr_tb ();
     else $error("%0t: LFSR did not send last bit correctly: expected %b, got %b", $time, UUT.lfsr_bits[c_LFSR_BITS-1], r_tb_last_lfsr_bit);
 
     initial begin
-        $dumpfile("lfsr_tb.vcd");
-        $dumpvars(0, lfsr_tb);
-
         assert (c_LFSR_BITS inside {7, 31}) else $error("Unsupported value of c_LFSR_BITS");
 
+        $dumpfile("lfsr_tb.vcd");
+        $dumpvars(0, lfsr_tb);
         // check reset (active-low!) to default seed value
         r_tb_reset <= 1'b0;
         @(posedge r_tb_clock);
@@ -56,7 +57,7 @@ module lfsr_tb ();
 
         // check that output is based on XOR tap
         repeat(2*c_LFSR_BITS) begin
-            logic [c_LFSR_BITS-1:0] expected_next_state = get_next_state(UUT.lfsr_bits); 
+            automatic logic [c_LFSR_BITS-1:0] expected_next_state = get_next_state(UUT.lfsr_bits); 
             @(posedge r_tb_clock);
             a_xor_appended_correctly: assert (expected_next_state == UUT.lfsr_bits) 
             else $error("%0t: LFSR bits do not match bits expected from contenating with XOR gate outputs", $time);
