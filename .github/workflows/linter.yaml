@@ -1,0 +1,14 @@
+name: Linter
+run-name: Verilator linting and triggered by ${{ github.event_name }}
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: veryl-lang/setup-verilator@v1
+
+      - name: Run verilator linting
+        run: verilator --lint-only -Wall --bbox-unsup --timing -y src/ --top-module prbs_checker_top src/*.sv sim/*.sv

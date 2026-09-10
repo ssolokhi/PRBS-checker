@@ -1,0 +1,23 @@
+name: Simulate
+run-name: Verilator simulating triggered by ${{ github.event_name }}
+
+on: [push, pull_request]
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: veryl-lang/setup-verilator@v1
+
+      - name: Verilate testbenches
+        run: mkdir build && cd build && cmake .. && make
+
+      - name: Runlfsr_tb executable
+        run: ./VSimLfsr
+
+      - name: Run prbs_checker_tb executable
+        run: ./VSimPrbsChecker
+
+      - name: Run prbs_checker_top_tb executable
+        run: ./VSimPrbsCheckerTop

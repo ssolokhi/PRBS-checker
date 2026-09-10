@@ -1,5 +1,7 @@
 [![Linter](https://github.com/ssolokhi/PRBS-checker/actions/workflows/linter.yaml/badge.svg)](https://github.com/ssolokhi/PRBS-checker/actions/workflows/linter.yaml)
 
+[![Simulate](https://github.com/ssolokhi/PRBS-checker/actions/workflows/simulate.yaml/badge.svg)](https://github.com/ssolokhi/PRBS-checker/actions/workflows/simulate.yaml)
+
 # PRBS-Checker
 
 Verilog code for measuring bit error rate of *pseudo-random bit sequences* (PRBS). The layout consists of 3 stages:
@@ -43,11 +45,6 @@ to be due to loss of lock.
 
 When the receiver locks onto the PRBS, a green LED lights up. For every error in the transmitted bit pattern, a 
 red LED lights up.
-
-## Verilog To SystemVerilog Transition
-
-In this repo, I am making a first attempt to switch from Verilog to SystemVerilog. Therefore, the codestyle is different from the
-previous projects.
 
 ## Code Style
 
