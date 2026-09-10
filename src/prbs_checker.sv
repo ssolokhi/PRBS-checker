@@ -1,9 +1,7 @@
 `default_nettype none
 
 module prbs_checker
-/* verilator lint_off */
     import prbs_checker_fsm_states::*;
-/* verilator lint_on */
 #(
     parameter int c_LOCK_THRESHOLD = 31,
     parameter int c_OPEN_THRESHOLD = 31,
@@ -22,9 +20,7 @@ module prbs_checker
 
     logic [$clog2(c_LOCK_THRESHOLD)-1:0] lock_counter = 'b0;
     logic [$clog2(c_OPEN_THRESHOLD)-1:0] open_counter = 'b0;
-/* verilator lint_off */
     state current_state = OPEN;
-/* verilator lint_on */
     logic error = 1'b0;
 
     always_ff @(posedge i_clock)

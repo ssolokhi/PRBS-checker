@@ -1,0 +1,41 @@
+name: Verilator
+run-name: Verilator linting and simulating triggered by ${{ github.event_name }}
+
+on: [push, pull_request]
+
+jobs:
+  install-verilator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: veryl-lang/setup-verilator@v1
+      - run: verilator --version
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: install-verilator
+    steps:
+      - uses: actions/checkout@v7
+      - uses: veryl-lang/setup-verilator@v1
+
+      - name: Run verilator linting
+        run: verilator --lint-only -Wall --bbox-unsup --timing -y src/ --top-module prbs_checker_top src/*.sv sim/*.sv
+
+  simulate:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v7
+      - uses: veryl-lang/setup-verilator@v1
+
+      - name: Verilate testbenches
+        run: mkdir build && cd build && cmake .. && make
+
+      - name: Runlfsr_tb executable
+        run: ./VSimLfsr
+
+      - name: Run prbs_checker_tb executable
+        run: ./VSimPrbsChecker
+
+      - name: Run prbs_checker_top_tb executable
+        run: ./VSimPrbsCheckerTop
