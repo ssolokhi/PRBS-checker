@@ -25,11 +25,35 @@ module prbs_checker_tb ();
         .o_error(r_tb_error)
     );
 
+/* verilator lint_off DECLFILENAME */
+    covergroup cg_check_fsm_transition @(posedge r_tb_clock);
+    // track transitions of signals below at each rising clock edge
+        option.per_instance = 1;
+
+        fsm_locked: coverpoint r_tb_is_locked {
+            bins open_to_locked = (1'b0 => 1'b1);
+            bins locked_to_open = (1'b1 => 1'b0);
+            bins stay_open = (1'b0 => 1'b0);
+            bins stay_locked = (1'b1 => 1'b1);
+        }
+
+        fsm_error: coverpoint r_tb_error {
+            bins error_asserted = {1'b1};
+            bins error_cleared = {1'b0};
+        }
+        // track combinations of the two
+        fsm_cross_locked_error: cross fsm_locked, fsm_error;
+    endgroup;
+/* verilator lint_on DECLFILENAME */
+
+    cg_check_fsm_transition cg_inst = new();
+
     initial begin
         $dumpfile("prbs_checker_tb.vcd");
         $dumpvars(0, prbs_checker_tb);
 
         // check reset
+        cg_inst.stop(); // do not track transitions at reset
         force UUT.current_state = LOCKED; // otherwise check below is meaningless 
         r_tb_reset <= 1'b0;
         @(posedge r_tb_clock); 
@@ -40,6 +64,7 @@ module prbs_checker_tb ();
         a_reset_open_counter: assert (UUT.open_counter == 0) else $error("%0t: FSM's open counter did not return to 0 after reset", $time);
         r_tb_reset <= 1'b1;
         @(posedge r_tb_clock);
+        cg_inst.start();
 
         // check OPEN stays OPEN if there are not enough matching bits
         r_tb_received_bit <= 1'b0;
@@ -86,6 +111,7 @@ module prbs_checker_tb ();
         a_fsm_relocks_correctly: assert (UUT.current_state == LOCKED && r_tb_is_locked == 1'b1) else $error("%0t: FSM not in LOCKED state after enough (%d) matching bits", $time, c_LOCK_THRESHOLD);
 
         $display("%0t: SUCCESS: all checks passed!", $time);
+        $display("Coverage is %0.2f %%", cg_inst.get_inst_coverage());
         $finish;
     end
 
