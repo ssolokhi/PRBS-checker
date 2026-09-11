@@ -11,4 +11,4 @@ jobs:
       - uses: veryl-lang/setup-verilator@v1
 
       - name: Run verilator linting
-        run: verilator --lint-only -Wall --bbox-unsup --timing -y src/ --top-module prbs_checker_top src/*.sv sim/*.sv
+        run: verilator --lint-only -Wall -Wno-procassinit --bbox-unsup --timing -y src/ --top-module prbs_checker_top src/*.sv sim/*.sv

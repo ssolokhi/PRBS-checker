@@ -27,6 +27,8 @@ module lfsr_tb ();
         /* verilator lint_off SELRANGE */
         unique case (c_LFSR_BITS)
             7: xor_gate = current_state[6] ^ current_state[5];
+            15: xor_gate = current_state[14] ^ current_state[13];
+            23: xor_gate = current_state[22] ^ current_state[17];
             31: xor_gate = current_state[30] ^ current_state[27];
             default: xor_gate = 1'b0;   
         endcase

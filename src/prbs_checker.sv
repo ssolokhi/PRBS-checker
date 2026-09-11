@@ -1,7 +1,6 @@
 `default_nettype none
 
 module prbs_checker
-    import prbs_checker_fsm_states::*;
 #(
     parameter int c_LOCK_THRESHOLD = 31,
     parameter int c_OPEN_THRESHOLD = 31,
@@ -17,6 +16,7 @@ module prbs_checker
     output logic o_is_locked,
     output logic o_error
     );  
+    import prbs_checker_fsm_states::*;
 
     logic [$clog2(c_LOCK_THRESHOLD)-1:0] lock_counter = 'b0;
     logic [$clog2(c_OPEN_THRESHOLD)-1:0] open_counter = 'b0;

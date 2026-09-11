@@ -19,6 +19,10 @@ module lfsr #(
         unique case (c_LFSR_BITS)
             // PRBS-7 polynomial is x**7 + x**6 + 1
             7: xor_gate = lfsr_bits[6] ^ lfsr_bits[5];
+            // PRBS-15 polynomial is x**15 + x**14 + 1
+            15: xor_gate = lfsr_bits[14] ^ lfsr_bits[13];
+            // PRBS-23 polynomial is x**23 + x**18 + 1
+            23: xor_gate = lfsr_bits[22] ^ lfsr_bits[17];
             // PRBS-31 polynomial is x**31 + x**28 + 1
             31: xor_gate = lfsr_bits[30] ^ lfsr_bits[27];
 
