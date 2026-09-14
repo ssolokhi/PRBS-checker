@@ -13,7 +13,7 @@ jobs:
       - name: Verilate testbenches
         run: mkdir build && cd build && cmake .. && make && cd -
 
-      - name: Runlfsr_tb executable
+      - name: Run lfsr_tb executable
         background: true
         run:  ./build/VSimLfsr
 
