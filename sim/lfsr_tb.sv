@@ -84,16 +84,17 @@ module lfsr_tb ();
         // state should now be the seed value
         begin
             automatic bit seen_states [logic [c_LFSR_BITS-1:0]]; // store true\false values per LFSR state, accessed via LFSR state
-            // state[c_LFSR_PERIOD] will repeat and cause nonsensical
-            // assertion error => only check (c_LFSR_PERIOD - 1) states
-            for (int i = 0; i < c_LFSR_PERIOD - 1; i++) begin
+            for (int i = 1; i < c_LFSR_PERIOD; i++) begin
                 a_nonzero_state: assert (UUT.lfsr_bits != '0) else $error("%0t: LFSR in illegal all-zero state", $time);
                 a_state_not_seen_before: assert (!seen_states.exists(UUT.lfsr_bits)) 
                 else $error("%0t: LFSR state already seen before LFSR period exceeded: %b (iteration %d)", $time, UUT.lfsr_bits, i);
                 seen_states[UUT.lfsr_bits] = 1'b1;
                 @(posedge r_tb_clock);
                 #c_WAIT_FOR_SIGNALS_TO_SETTLE;
+                $display(UUT.lfsr_bits);
             end
+            $display(UUT.lfsr_bits);
+            $display(UUT.c_LFSR_SEED);
             a_return_to_seed: assert (UUT.lfsr_bits == UUT.c_LFSR_SEED) 
             else $error("%0t: LFSR bits did not cycle back to seed value after LFSR period", $time);
         end

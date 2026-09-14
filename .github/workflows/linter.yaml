@@ -12,15 +12,16 @@ jobs:
 
       - name: Run verilator linting for lfsr_tb
         background: true
-        run: verilator --lint-only -Wall -Wno-procassinit -Wno-initialdly \
-          Isrc/ -Isim/ lfsr lfsr_tb --top-module lfsr_tb
+        run: verilator --lint-only -Wall -Wno-procassinit -Wno-initialdly lfsr lfsr_tb -Isrc/ -Isim/ --top-module lfsr_tb
 
       - name: Run verilator linting for prbs_checker_tb
         background: true
-        run: verilator --lint-only -Wall -Wno-procassinit -Wno-unusedsignal -Wno-coverign -Wno-undriven \
-          -Isrc/ -Isim/ prbs_checker_fsm_states prbs_checker prbs_checker_tb --top-module prbs_checker_tb 
+        run: |
+          verilator --lint-only -Wall -Wno-procassinit -Wno-unusedsignal -Wno-coverign -Wno-undriven \
+            prbs_checker_fsm_states prbs_checker prbs_checker_tb -Isrc/ -Isim/ --top-module prbs_checker_tb 
 
       - name: Run verilator linting for prbs_checker_top_tb
         background: true
-        run: verilator --lint-only -Wall -Wno-procassinit -Wno-unusedsignal \
-          -Isrc/ -Isim/ prbs_checker_fsm_states prbs_checker_top prbs_checker_top_tb --top-module prbs_checker_top_tb 
+        run: |
+          verilator --lint-only -Wall -Wno-procassinit -Wno-unusedsignal \
+            prbs_checker_fsm_states prbs_checker_top prbs_checker_top_tb -Isrc/ -Isim/ --top-module prbs_checker_top_tb 
