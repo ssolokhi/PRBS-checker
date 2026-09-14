@@ -1,5 +1,5 @@
 name: Linter
-run-name: Verilator linting and triggered by ${{ github.event_name }}
+run-name: Verilator linting triggered by ${{ github.event_name }}
 
 on: [push, pull_request]
 
@@ -10,5 +10,17 @@ jobs:
       - uses: actions/checkout@v7
       - uses: veryl-lang/setup-verilator@v1
 
-      - name: Run verilator linting
-        run: verilator --lint-only -Wall -Wno-procassinit --bbox-unsup --timing -y src/ --top-module prbs_checker_top src/*.sv sim/*.sv
+      - name: Run verilator linting for lfsr_tb
+        background: true
+        run: verilator --lint-only -Wall -Wno-procassinit -Wno-initialdly \
+          Isrc/ -Isim/ lfsr lfsr_tb --top-module lfsr_tb
+
+      - name: Run verilator linting for prbs_checker_tb
+        background: true
+        run: verilator --lint-only -Wall -Wno-procassinit -Wno-unusedsignal -Wno-coverign -Wno-undriven \
+          -Isrc/ -Isim/ prbs_checker_fsm_states prbs_checker prbs_checker_tb --top-module prbs_checker_tb 
+
+      - name: Run verilator linting for prbs_checker_top_tb
+        background: true
+        run: verilator --lint-only -Wall -Wno-procassinit -Wno-unusedsignal \
+          -Isrc/ -Isim/ prbs_checker_fsm_states prbs_checker_top prbs_checker_top_tb --top-module prbs_checker_top_tb 

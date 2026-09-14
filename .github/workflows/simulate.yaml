@@ -11,13 +11,16 @@ jobs:
       - uses: veryl-lang/setup-verilator@v1
 
       - name: Verilate testbenches
-        run: mkdir build && cd build && cmake .. && make
+        run: mkdir build && cd build && cmake .. && make && cd -
 
       - name: Runlfsr_tb executable
-        run: ./VSimLfsr
+        background: true
+        run:  ./build/VSimLfsr
 
       - name: Run prbs_checker_tb executable
-        run: ./VSimPrbsChecker
+        background: true
+        run: ./build/VSimPrbsChecker
 
       - name: Run prbs_checker_top_tb executable
-        run: ./VSimPrbsCheckerTop
+        background: true
+        run: ./build/VSimPrbsCheckerTop

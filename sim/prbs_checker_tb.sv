@@ -25,7 +25,6 @@ module prbs_checker_tb ();
         .o_error(r_tb_error)
     );
 
-/* verilator lint_off DECLFILENAME */
     covergroup cg_check_fsm_transition @(posedge r_tb_clock);
     // track transitions of signals below at each rising clock edge
         option.per_instance = 1;
@@ -44,7 +43,6 @@ module prbs_checker_tb ();
         // track combinations of the two
         fsm_cross_locked_error: cross fsm_locked, fsm_error;
     endgroup;
-/* verilator lint_on DECLFILENAME */
 
     cg_check_fsm_transition cg_inst = new();
 
