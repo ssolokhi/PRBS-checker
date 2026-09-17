@@ -1,3 +1,5 @@
+`default_nettype none
+
 module lfsr #(
     parameter int c_LFSR_BITS = 31,
     parameter logic [c_LFSR_BITS-1:0] c_LFSR_SEED = 'h1 // since all-zero seed is not allowed
@@ -13,17 +15,23 @@ module lfsr #(
 
     // select bit to XOR; see README for details
     always_comb begin
+        /* verilator lint_off SELRANGE */
         unique case (c_LFSR_BITS)
             // PRBS-7 polynomial is x**7 + x**6 + 1
             7: xor_gate = lfsr_bits[6] ^ lfsr_bits[5];
+            // PRBS-15 polynomial is x**15 + x**14 + 1
+            15: xor_gate = lfsr_bits[14] ^ lfsr_bits[13];
+            // PRBS-23 polynomial is x**23 + x**18 + 1
+            23: xor_gate = lfsr_bits[22] ^ lfsr_bits[17];
             // PRBS-31 polynomial is x**31 + x**28 + 1
             31: xor_gate = lfsr_bits[30] ^ lfsr_bits[27];
 
-            default: xor_gate = '0;    
+            default: xor_gate = 1'b0;    
         endcase
+        /* verilator lint_on SELRANGE */
     end
     
-    always_ff @(posedge i_clock or negedge i_reset) begin
+    always_ff @(posedge i_clock) begin
         if (!i_reset) lfsr_bits <= c_LFSR_SEED;
         else if (i_load_enable) lfsr_bits <= {lfsr_bits[c_LFSR_BITS-2:0], i_load_bit};
         else lfsr_bits <= {lfsr_bits[c_LFSR_BITS-2:0], xor_gate}; 

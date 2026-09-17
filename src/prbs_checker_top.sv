@@ -1,18 +1,22 @@
-module prbs_checker_top (
+`default_nettype none
+
+module prbs_checker_top #(
+    parameter c_PRBS_BITS = 31
+    )(
     input logic i_clock,
-    input logic i_reset,
+    input logic i_reset, // active-low
     output logic o_led_locked,
     output logic o_led_error
     );
-    localparam c_PRBS_BITS = 31;
     logic received_prbs_bit_tx;
     logic expected_prbs_bit_rx;
-    logic load_enable_tx = 1'b0;
+    logic load_enable_rx = 1'b1;
+    logic [$clog2(c_PRBS_BITS)-1:0] load_counter_rx = '0;
 
     lfsr #(.c_LFSR_BITS(c_PRBS_BITS)) prbs_generator_tx (
         .i_clock(i_clock),
         .i_reset(i_reset),
-        .i_load_enable(load_enable_tx),
+        .i_load_enable(1'b0),
         .i_load_bit(1'b0),
         .o_last_lfsr_bit(received_prbs_bit_tx)
     );
@@ -25,10 +29,7 @@ module prbs_checker_top (
         .o_last_lfsr_bit(expected_prbs_bit_rx)
     );
 
-    logic load_enable_rx = 1'b1;
-    logic [$clog2(c_PRBS_BITS)-1:0] load_counter_rx = '0;
-
-    always_ff @(posedge i_clock or negedge i_reset) begin
+    always_ff @(posedge i_clock) begin
         if (!i_reset) begin
             load_counter_rx <= '0;
             load_enable_rx <= 1'b1;
@@ -42,9 +43,9 @@ module prbs_checker_top (
         end
     end
 
-
     prbs_checker #(.c_LOCK_THRESHOLD(c_PRBS_BITS), .c_OPEN_THRESHOLD(c_PRBS_BITS)) prbs_checker_rx (
         .i_clock(i_clock),
+        .i_reset(i_reset),  
         .i_received_prbs_bit(received_prbs_bit_tx),
         .i_expected_prbs_bit(expected_prbs_bit_rx),
         .o_is_locked(o_led_locked),

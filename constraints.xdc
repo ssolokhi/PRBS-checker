@@ -16,7 +16,7 @@ set_property -dict { PACKAGE_PIN G17   IOSTANDARD LVCMOS33 } [get_ports { o_led_
 set_property -dict { PACKAGE_PIN M15   IOSTANDARD LVCMOS33 } [get_ports { o_led_error }]; #IO_L23N_T3_35 Sch=led1_r
 
 ## Buttons
-#set_property -dict { PACKAGE_PIN D20   IOSTANDARD LVCMOS33 } [get_ports { i_raw_button_1 }]; #IO_L4N_T0_35 Sch=btn[0]
+set_property -dict { PACKAGE_PIN D20   IOSTANDARD LVCMOS33 } [get_ports { i_reset }]; #IO_L4N_T0_35 Sch=btn[0]
 #set_property -dict { PACKAGE_PIN D19   IOSTANDARD LVCMOS33 } [get_ports { i_raw_button_2 }]; #IO_L4P_T0_35 Sch=btn[1]
 
 ## Pmod Header JA

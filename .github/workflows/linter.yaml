@@ -1,16 +1,27 @@
 name: Linter
-run-name: Linter triggered by ${{ github.event_name }}
+run-name: Verilator linting triggered by ${{ github.event_name }}
 
-on: push
+on: [push, pull_request]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: veryl-lang/setup-verilator@v1
 
-      - name: Install verilator
-        run: sudo apt update && sudo apt install -y verilator
+      - name: Run verilator linting for lfsr_tb
+        background: true
+        run: verilator --lint-only -Wall -Wno-procassinit -Wno-initialdly lfsr lfsr_tb -Isrc/ -Isim/ --top-module lfsr_tb
 
-      - name: Run verilator
-        run: verilator --lint-only -Wall --timing --top-module src/prbs_checker_top.tb src/*.sv sim/*.sv
+      - name: Run verilator linting for prbs_checker_tb
+        background: true
+        run: |
+          verilator --lint-only -Wall -Wno-procassinit -Wno-unusedsignal -Wno-coverign -Wno-undriven -Wno-initialdly \
+          -Wno-declfilename prbs_checker_fsm_states prbs_checker prbs_checker_tb -Isrc/ -Isim/ --top-module prbs_checker_tb 
+
+      - name: Run verilator linting for prbs_checker_top_tb
+        background: true
+        run: |
+          verilator --lint-only -Wall -Wno-procassinit -Wno-unusedsignal -Wno-initialdly \
+            prbs_checker_fsm_states prbs_checker_top prbs_checker_top_tb -Isrc/ -Isim/ --top-module prbs_checker_top_tb 

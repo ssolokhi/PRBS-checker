@@ -1,3 +1,7 @@
+[![Linter](https://github.com/ssolokhi/PRBS-checker/actions/workflows/linter.yaml/badge.svg)](https://github.com/ssolokhi/PRBS-checker/actions/workflows/linter.yaml)
+
+[![Simulate](https://github.com/ssolokhi/PRBS-checker/actions/workflows/simulate.yaml/badge.svg)](https://github.com/ssolokhi/PRBS-checker/actions/workflows/simulate.yaml)
+
 # PRBS-Checker
 
 Verilog code for measuring bit error rate of *pseudo-random bit sequences* (PRBS). The layout consists of 3 stages:
@@ -9,7 +13,7 @@ The transmitter generates a PRBS using a *linear-feedback shift register* (LFSR)
 the last bit of the PRBS is sent away from the module. This allows testing serial data transfer, which is more 
 relevant for my job.
 
-To ensure that the PRBS has a maximal period ($s^{n_{bits}} - 1$), specific bits of the LFSR are XOR'ed, see 
+To ensure that the PRBS has a maximal period ($2^{n_{bits}} - 1$), specific bits of the LFSR are XOR'ed, see 
 [Table 2.1 in this article](https://www.physics.otago.ac.nz/reports/electronics/ETR2012-1.pdf).
 
 ## Signal Transfer
@@ -41,11 +45,6 @@ to be due to loss of lock.
 
 When the receiver locks onto the PRBS, a green LED lights up. For every error in the transmitted bit pattern, a 
 red LED lights up.
-
-## Verilog To SystemVerilog Transition
-
-In this repo, I am making a first attempt to switch from Verilog to SystemVerilog. Therefore, the codestyle is different from the
-previous projects.
 
 ## Code Style
 
