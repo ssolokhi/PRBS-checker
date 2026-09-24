@@ -24,9 +24,10 @@ module cdc_fifo #(
     );
     // int = 32 bits wide. To compare thresholds with counters without warnings from linter,
     // thresholds have to be resized to be same width as counters
-    localparam logic [$clog2(c_DEPTH):0] c_DEPTH_resized = ($clog2(c_DEPTH) + 1)'(c_DEPTH);
-    localparam logic [$clog2(c_DEPTH):0] c_ALMOST_FULL_LEVEL_resized = ($clog2(c_DEPTH) + 1)'(c_ALMOST_FULL_LEVEL);
-    localparam logic [$clog2(c_DEPTH):0] c_ALMOST_EMPTY_LEVEL_resized = ($clog2(c_DEPTH) + 1)'(c_ALMOST_EMPTY_LEVEL);
+    localparam int c_DEPTH_CLOG2 = $clog2(c_DEPTH);
+    localparam logic [c_DEPTH_CLOG2:0] c_DEPTH_resized = (c_DEPTH_CLOG2 + 1)'(c_DEPTH);
+    localparam logic [c_DEPTH_CLOG2:0] c_ALMOST_FULL_LEVEL_resized = (c_DEPTH_CLOG2 + 1)'(c_ALMOST_FULL_LEVEL);
+    localparam logic [c_DEPTH_CLOG2:0] c_ALMOST_EMPTY_LEVEL_resized = (c_DEPTH_CLOG2 + 1)'(c_ALMOST_EMPTY_LEVEL);
     int element_count = 'd0;
 
     logic [c_WIDTH-1:0] fifo [c_DEPTH-1:0]; // declare FIFO as an array of memory
@@ -34,21 +35,50 @@ module cdc_fifo #(
     // (MSB) distinguishes full case from empty case: 
     // both have read_pointer == write pointer, so matching extra bit can
     // indicate empty, and differing MSB - full 
-    logic [$clog2(c_DEPTH):0] write_address_binary, write_address_gray_encoded; 
-    logic [$clog2(c_DEPTH):0] read_address_binary, read_address_gray_encoded; 
+    logic [c_DEPTH_CLOG2:0] write_address_binary, write_address_gray_encoded; 
+    logic [c_DEPTH_CLOG2:0] read_address_binary, read_address_gray_encoded; 
+
+    // chain 2 flip-flops together to reduce the chance of metastabile states
+    logic [c_DEPTH_CLOG2:0] write_address_gray_encoded_1_cycle_delay, write_address_gray_encoded_2_cycles_delay; 
+    logic [c_DEPTH_CLOG2:0] read_address_gray_encoded_1_cycle_delay, read_address_gray_encoded_2_cycles_delay; 
 
     // write domain
+    logic is_write_allowed;
+    assign is_write_allowed = i_write_enable && !o_is_full;
+
     always_ff @(posedge i_write_clock) begin
+        if (!i_write_reset) begin
+            write_address_binary <= '0;
+            write_address_gray_encoded <= '0;
+        end
+        else if (is_write_allowed) begin
+            fifo[write_address_binary[c_DEPTH_CLOG2-1:0]] <= i_write_data;
+            write_address_binary <= write_address_binary + 1'b1;
+        end
     end
+    
+    always_ff @(posedge i_write_clock) begin
+         if (!i_write_reset) begin
+            read_address_gray_encoded_1_cycle_delay <= '0;
+            read_address_gray_encoded_2_cycles_delay <= '0;
+        end
+        else begin
+            read_address_gray_encoded_1_cycle_delay <= read_address_gray_encoded;
+            read_address_gray_encoded_2_cycles_delay <= read_address_gray_encoded_1_cycle_delay;
+        end
+
+    end
+
+    assign o_is_full = ((write_address_binary) == c_DEPTH_resized);
+    assign o_is_almost_full = ((write_address_binary) >= (c_DEPTH_resized - c_ALMOST_FULL_LEVEL_resized));
 
     // read domain
     always_ff @(posedge i_read_clock) begin
     end
 
     assign o_read_ready = i_read_enable;
-    assign o_read_data = fifo[read_address];
-    assign o_is_full = (element_count == c_DEPTH) || (element_count == c_DEPTH - 1 && i_write_enable && !i_read_enable);
-    assign o_is_almost_full = (element_count > c_DEPTH - c_ALMOST_FULL_LEVEL);
-    assign o_is_empty = (element_count == 0);
-    assign o_is_almost_empty = (element_count < c_ALMOST_EMPTY_LEVEL);
+    assign o_read_data = fifo[read_address_binary[c_DEPTH_CLOG2-1:0]];
+
+    assign o_is_empty = ((read_address_binary) == 0);
+    assign o_is_almost_empty = ((read_address_binary) <= c_ALMOST_EMPTY_LEVEL_resized);
 endmodule
