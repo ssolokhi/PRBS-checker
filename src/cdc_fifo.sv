@@ -38,8 +38,20 @@ module cdc_fifo #(
     logic [c_DEPTH_CLOG2:0] read_address_binary, read_address_gray_encoded; 
 
     // chain 2 flip-flops together to reduce the chance of metastabile states
+    // 2-cycle delay registers are safe to use
     logic [c_DEPTH_CLOG2:0] write_address_gray_encoded_1_cycle_delay, write_address_gray_encoded_2_cycles_delay; 
     logic [c_DEPTH_CLOG2:0] read_address_gray_encoded_1_cycle_delay, read_address_gray_encoded_2_cycles_delay; 
+
+    function automatic logic [c_DEPTH_CLOG2:0] f_gray_to_binary(input logic [c_DEPTH_CLOG2:0] gray_encoded);
+        // Gray encoding: g[i] = b[i] ^ b[i+1]
+        // The inverse of it is b[i] = g[i] ^ b[i+1]. Step i requires result
+        // from step i + 1 => loop counter decrementing from max value
+        logic [c_DEPTH_CLOG2:0] binary;
+        binary[c_DEPTH_CLOG2] = gray_encoded[c_DEPTH_CLOG2]; // nothing to XOR with => unchanged
+        for (int i = c_DEPTH_CLOG2 - 1; i >= 0; i--)
+            binary[i] = binary[i+1] ^ gray_encoded[i];
+        return binary;
+    endfunction
 
     // write domain
     logic is_write_allowed;
@@ -53,6 +65,7 @@ module cdc_fifo #(
         else if (is_write_allowed) begin
             fifo[write_address_binary[c_DEPTH_CLOG2-1:0]] <= i_write_data;
             write_address_binary <= write_address_binary + 1'b1;
+            write_address_gray_encoded <= (write_address_binary + 1'b1) ^ ((write_address_binary + 1'b1) >> 1);
         end
     end
     
@@ -68,8 +81,13 @@ module cdc_fifo #(
 
     end
 
-    assign o_is_full = ((write_address_binary) == c_DEPTH_resized);
-    assign o_is_almost_full = ((write_address_binary) >= (c_DEPTH_resized - c_ALMOST_FULL_LEVEL_resized));
+    logic [c_DEPTH_CLOG2:0] read_address_binary_in_write_domain;
+    assign read_address_binary_in_write_domain = f_gray_to_binary(read_address_gray_encoded_2_cycles_delay);
+
+    // subtraction of 2 unsigned integers will always yield an unsigned number
+    // => modulo wrapping of the value
+    assign o_is_full = ((write_address_binary - read_address_binary_in_write_domain) == c_DEPTH_resized);
+    assign o_is_almost_full = ((write_address_binary - read_address_binary_in_write_domain) >= (c_DEPTH_resized - c_ALMOST_FULL_LEVEL_resized));
 
     // read domain
     logic is_read_allowed;
@@ -82,6 +100,7 @@ module cdc_fifo #(
         end
         else if (is_read_allowed) begin
             read_address_binary <= read_address_binary + 1'b1;
+            read_address_gray_encoded <= (read_address_binary + 1'b1) ^ ((read_address_binary + 1'b1) >> 1);
         end
     end
     
@@ -91,13 +110,17 @@ module cdc_fifo #(
             write_address_gray_encoded_2_cycles_delay <= '0;
         end
         else begin
-            write_address_gray_encoded_1_cycle_delay <= read_address_gray_encoded;
-            write_address_gray_encoded_2_cycles_delay <= read_address_gray_encoded_1_cycle_delay;
+            write_address_gray_encoded_1_cycle_delay <= write_address_gray_encoded;
+            write_address_gray_encoded_2_cycles_delay <= write_address_gray_encoded_1_cycle_delay;
         end
 
     end
-    assign o_is_empty = ((read_address_binary) == 0);
-    assign o_is_almost_empty = ((read_address_binary) <= c_ALMOST_EMPTY_LEVEL_resized);
+
+    logic [c_DEPTH_CLOG2:0] write_address_binary_in_read_domain;
+    assign write_address_binary_in_read_domain = f_gray_to_binary(write_address_gray_encoded_2_cycles_delay);
+
+    assign o_is_empty = (write_address_binary_in_read_domain == read_address_binary);
+    assign o_is_almost_empty = ((write_address_binary_in_read_domain - read_address_binary) <= c_ALMOST_EMPTY_LEVEL_resized);
 
     assign o_read_ready = !o_is_empty;
     assign o_read_data = fifo[read_address_binary[c_DEPTH_CLOG2-1:0]];

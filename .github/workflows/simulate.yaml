@@ -21,6 +21,10 @@ jobs:
         background: true
         run:  ./build/VSimDataSerializer
 
+      - name: Run cdc_fifo_tb executable
+        background: true
+        run:  ./build/VSimCdcFifo
+
       - name: Run prbs_checker_tb executable
         background: true
         run: ./build/VSimPrbsChecker

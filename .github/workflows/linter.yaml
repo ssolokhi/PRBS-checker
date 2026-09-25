@@ -20,6 +20,10 @@ jobs:
           verilator --lint-only -Wall -Wno-procassinit -Wno-undriven -Wno-unusedsignal -Wno-coverign -Wno-initialdly \
           data_serializer data_serializer_tb -Isrc/ -Isim/ --top-module data_serializer_tb
 
+      - name: Run verilator linting for cdc_fifo_tb
+        background: true
+        run: verilator --lint-only -Wall -Wno-procassinit -Wno-initialdly cdc_fifo cdc_fifo_tb -Isrc/ -Isim/ --top-module cdc_fifo_tb
+
       - name: Run verilator linting for prbs_checker_tb
         background: true
         run: |

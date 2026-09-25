@@ -19,6 +19,13 @@ verilate(VSimDataSerializer
     INCLUDE_DIRS src sim
     VERILATOR_ARGS -Wno-initialdly --timing --coverage --trace-vcd)
 
+add_executable(VSimCdcFifo cpp/sim_cdc_fifo.cpp)
+verilate(VSimCdcFifo
+    SOURCES sim/cdc_fifo_tb.sv TOP_MODULE cdc_fifo_tb
+    PREFIX VCdcFifoTb
+    INCLUDE_DIRS src sim
+    VERILATOR_ARGS -Wno-initialdly --timing --trace-vcd)
+
 add_executable(VSimPrbsChecker cpp/sim_prbs_checker.cpp)
 verilate(VSimPrbsChecker
     SOURCES sim/prbs_checker_tb.sv src/prbs_checker_fsm_states.sv TOP_MODULE prbs_checker_tb
