@@ -4,12 +4,8 @@ module prbs_checker
     import prbs_checker_fsm_states::*;
 #(
     parameter int c_LOCK_THRESHOLD = 31,
-    parameter int c_OPEN_THRESHOLD = 31,
-    // int = 32 bits wide. To compare thresholds with counters without warnings from linter,
-    // thresholds have to be resized to be same width as counters
-    parameter logic [$clog2(c_LOCK_THRESHOLD)-1:0] c_LOCK_THRESHOLD_resized = $clog2(c_LOCK_THRESHOLD)'(c_LOCK_THRESHOLD),
-    parameter logic [$clog2(c_OPEN_THRESHOLD)-1:0] c_OPEN_THRESHOLD_resized = $clog2(c_OPEN_THRESHOLD)'(c_OPEN_THRESHOLD)
-    ) (
+    parameter int c_OPEN_THRESHOLD = 31
+        ) (
     input logic i_clock,
     input logic i_reset, // active-low
     input logic i_received_prbs_bit,
@@ -17,6 +13,10 @@ module prbs_checker
     output logic o_is_locked,
     output logic o_error
     );  
+    // int = 32 bits wide. To compare thresholds with counters without warnings from linter,
+    // thresholds have to be resized to be same width as counters
+    localparam logic [$clog2(c_LOCK_THRESHOLD)-1:0] c_LOCK_THRESHOLD_resized = $clog2(c_LOCK_THRESHOLD)'(c_LOCK_THRESHOLD);
+    localparam logic [$clog2(c_OPEN_THRESHOLD)-1:0] c_OPEN_THRESHOLD_resized = $clog2(c_OPEN_THRESHOLD)'(c_OPEN_THRESHOLD);
 
     logic [$clog2(c_LOCK_THRESHOLD)-1:0] lock_counter = 'b0;
     logic [$clog2(c_OPEN_THRESHOLD)-1:0] open_counter = 'b0;

@@ -28,7 +28,6 @@ module cdc_fifo #(
     localparam logic [c_DEPTH_CLOG2:0] c_DEPTH_resized = (c_DEPTH_CLOG2 + 1)'(c_DEPTH);
     localparam logic [c_DEPTH_CLOG2:0] c_ALMOST_FULL_LEVEL_resized = (c_DEPTH_CLOG2 + 1)'(c_ALMOST_FULL_LEVEL);
     localparam logic [c_DEPTH_CLOG2:0] c_ALMOST_EMPTY_LEVEL_resized = (c_DEPTH_CLOG2 + 1)'(c_ALMOST_EMPTY_LEVEL);
-    int element_count = 'd0;
 
     logic [c_WIDTH-1:0] fifo [c_DEPTH-1:0]; // declare FIFO as an array of memory
     // these addresses are 1 bit wider than the address because the extra bit
@@ -73,12 +72,33 @@ module cdc_fifo #(
     assign o_is_almost_full = ((write_address_binary) >= (c_DEPTH_resized - c_ALMOST_FULL_LEVEL_resized));
 
     // read domain
+    logic is_read_allowed;
+    assign is_read_allowed = i_read_enable && !o_is_empty;
+
     always_ff @(posedge i_read_clock) begin
+        if (!i_read_reset) begin
+            read_address_binary <= '0;
+            read_address_gray_encoded <= '0;
+        end
+        else if (is_read_allowed) begin
+            read_address_binary <= read_address_binary + 1'b1;
+        end
     end
+    
+    always_ff @(posedge i_read_clock) begin
+         if (!i_read_reset) begin
+            write_address_gray_encoded_1_cycle_delay <= '0;
+            write_address_gray_encoded_2_cycles_delay <= '0;
+        end
+        else begin
+            write_address_gray_encoded_1_cycle_delay <= read_address_gray_encoded;
+            write_address_gray_encoded_2_cycles_delay <= read_address_gray_encoded_1_cycle_delay;
+        end
 
-    assign o_read_ready = i_read_enable;
-    assign o_read_data = fifo[read_address_binary[c_DEPTH_CLOG2-1:0]];
-
+    end
     assign o_is_empty = ((read_address_binary) == 0);
     assign o_is_almost_empty = ((read_address_binary) <= c_ALMOST_EMPTY_LEVEL_resized);
+
+    assign o_read_ready = !o_is_empty;
+    assign o_read_data = fifo[read_address_binary[c_DEPTH_CLOG2-1:0]];
 endmodule
