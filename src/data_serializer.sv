@@ -8,7 +8,8 @@ module data_serializer #(
     input logic i_reset, // active-low
     input logic [c_N_LANES-1:0] i_parallel_data,
     input logic i_parallel_data_ready,
-    output logic o_serial_data
+    output logic o_serial_data,
+    output logic o_ready_for_new_data
 );
     logic [c_N_LANES-1:0] bits_remaining_in_word;
     logic [c_N_LANES-1:0] shift_register;
@@ -17,12 +18,15 @@ module data_serializer #(
         if (!i_reset) begin
             bits_remaining_in_word <= '0;
             shift_register <= '0;
+            o_ready_for_new_data <= 1'b0;
         end
         else begin
+            o_ready_for_new_data <= 1'b0;
             if (bits_remaining_in_word == 0) begin
                 if (i_parallel_data_ready) begin
-                    bits_remaining_in_word <= i_parallel_data;
-                    bits_remaining_in_word <= c_N_LANES;
+                    bits_remaining_in_word <= c_N_LANES -1; // because 1 bit is already serialized at cycle 0
+                    shift_register <= i_parallel_data;
+                    o_ready_for_new_data <= 1'b1;
                 end
             end
             else begin
