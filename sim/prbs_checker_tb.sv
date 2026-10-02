@@ -29,19 +29,19 @@ module prbs_checker_tb ();
     // track transitions of signals below at each rising clock edge
         option.per_instance = 1;
 
-        fsm_locked: coverpoint r_tb_is_locked {
+        cp_fsm_locked: coverpoint r_tb_is_locked {
             bins open_to_locked = (1'b0 => 1'b1);
             bins locked_to_open = (1'b1 => 1'b0);
             bins stay_open = (1'b0 => 1'b0);
             bins stay_locked = (1'b1 => 1'b1);
         }
 
-        fsm_error: coverpoint r_tb_error {
+        cp_fsm_error: coverpoint r_tb_error {
             bins error_asserted = {1'b1};
             bins error_cleared = {1'b0};
         }
         // track combinations of the two
-        fsm_cross_locked_error: cross fsm_locked, fsm_error;
+        cc_fsm_cross_locked_error: cross fsm_locked, fsm_error;
     endgroup;
 
     cg_check_fsm_transition cg_inst = new();

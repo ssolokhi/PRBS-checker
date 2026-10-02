@@ -2,7 +2,7 @@
 `default_nettype none
 
 module data_serializer #(
-    c_N_LANES = 2
+    parameter int c_N_LANES = 2
 )(
     input logic i_clock,
     input logic i_reset, // active-low
@@ -11,22 +11,21 @@ module data_serializer #(
     output logic o_serial_data,
     output logic o_ready_for_new_data
 );
-    logic [c_N_LANES-1:0] bits_remaining_in_word;
+    parameter logic [$clog2(c_N_LANES)-1:0] c_N_LANES_resized = $clog2(c_N_LANES)'(c_N_LANES);
+
+    logic [$clog2(c_N_LANES)-1:0] bits_remaining_in_word;
     logic [c_N_LANES-1:0] shift_register;
 
     always_ff @(posedge i_clock) begin
         if (!i_reset) begin
             bits_remaining_in_word <= '0;
             shift_register <= '0;
-            o_ready_for_new_data <= 1'b0;
         end
         else begin
-            o_ready_for_new_data <= 1'b0;
             if (bits_remaining_in_word == 0) begin
                 if (i_parallel_data_ready) begin
-                    bits_remaining_in_word <= c_N_LANES -1; // because 1 bit is already serialized at cycle 0
+                    bits_remaining_in_word <= c_N_LANES_resized - 1; // because 1 bit is already serialized at cycle 0
                     shift_register <= i_parallel_data;
-                    o_ready_for_new_data <= 1'b1;
                 end
             end
             else begin
@@ -37,5 +36,6 @@ module data_serializer #(
     end
 
     assign o_serial_data = shift_register[0];
+    assign o_ready_for_new_data = (bits_remaining_in_word == 0) && i_parallel_data_ready;
 endmodule
 
