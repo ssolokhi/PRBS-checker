@@ -60,7 +60,7 @@ module data_serializer_tb ();
             a_bit_1_sent_second: assert (tb_serial_data == tb_parallel_data[1]) 
             else $error("%0t: New word not serialized correctly: on 2nd cycle expected %b, received %b", $time, tb_parallel_data[1], tb_serial_data); 
         end
-/*
+
         // check that transmission will stop midway if reset is asserted
         tb_parallel_data <= 2'b11;
         @(posedge tb_clock);
@@ -69,7 +69,7 @@ module data_serializer_tb ();
         a_serial_output_cleared: assert (tb_serial_data == 1'b0) 
             else $error("%0t: Serial output was not cleared when reset was requested mid-word", $time); 
         tb_reset <= 1'b1;
-*/
+
         $display("%0t: SUCCESS: all checks passed!", $time);
         $display("Coverage is %0.2f %%", cg_inst.get_inst_coverage());                                                                                                            
         $finish;
