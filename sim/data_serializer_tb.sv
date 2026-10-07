@@ -1,8 +1,9 @@
-`timescale 1ns/1ps
 `default_nettype none
 
 module data_serializer_tb ();
     localparam c_N_LANES = 2;
+    localparam c_WAIT_FOR_SIGNALS_TO_SETTLE = 1;
+
     logic tb_clock = 1'b0;
     always #5 tb_clock <= !tb_clock;
     logic tb_reset = 1'b1;
@@ -32,10 +33,13 @@ module data_serializer_tb ();
     initial begin
         $dumpfile("data_serializer_tb.vcd");
         $dumpvars(0, data_serializer_tb);
+
+        @(posedge tb_clock);
         // check reset (active-low!) to default seed value
         cg_inst.stop(); // do not track transitions at reset
         tb_reset <= 1'b0;
         repeat(5) @(posedge tb_clock) begin
+            #c_WAIT_FOR_SIGNALS_TO_SETTLE;
             a_serial_data_resets: assert (tb_serial_data == 1'b0) 
             else $error("%0t: Serial data was not cleared upon reset", $time); 
         end
@@ -46,6 +50,7 @@ module data_serializer_tb ();
         // check that words aren't loaded when input data not ready
         tb_parallel_data <= 'b11;
         @(posedge tb_clock);
+        #c_WAIT_FOR_SIGNALS_TO_SETTLE;
         a_no_output_when_input_not_ready: assert (tb_serial_data == 1'b0) 
         else $error("%0t: Serial data has non-default value when inout data is not ready", $time); 
 
@@ -54,9 +59,11 @@ module data_serializer_tb ();
         for (int i = 0; i < 4; ++i) begin
             tb_parallel_data <= i[1:0];
             @(posedge tb_clock);
+            #c_WAIT_FOR_SIGNALS_TO_SETTLE;
             a_bit_0_sent_first: assert (tb_serial_data == tb_parallel_data[0]) 
             else $error("%0t: New word not serialized correctly: on 1st cycle expected %b, received %b", $time, tb_parallel_data[0], tb_serial_data); 
             @(posedge tb_clock);
+            #c_WAIT_FOR_SIGNALS_TO_SETTLE;
             a_bit_1_sent_second: assert (tb_serial_data == tb_parallel_data[1]) 
             else $error("%0t: New word not serialized correctly: on 2nd cycle expected %b, received %b", $time, tb_parallel_data[1], tb_serial_data); 
         end
@@ -66,6 +73,7 @@ module data_serializer_tb ();
         @(posedge tb_clock);
         tb_reset <= 1'b0;
         @(posedge tb_clock);
+        #c_WAIT_FOR_SIGNALS_TO_SETTLE;
         a_serial_output_cleared: assert (tb_serial_data == 1'b0) 
             else $error("%0t: Serial output was not cleared when reset was requested mid-word", $time); 
         tb_reset <= 1'b1;

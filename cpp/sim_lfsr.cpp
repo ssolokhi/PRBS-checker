@@ -1,7 +1,7 @@
 #include <memory>
 #include "verilated.h"
 #include "verilated_vcd_c.h"
-#include "VLfsrTb.h" // generated from verilating the SystemVeriolg file
+#include "VLfsrTb.h" // generated from verilating the SystemVerilog file
 
 int main(int argc, char **argv) {
     const int SIMULATION_TIME = 10000; // 1000 is not enough for LFSR testbench

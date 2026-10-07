@@ -17,7 +17,7 @@ verilate(VSimDataSerializer
     SOURCES sim/data_serializer_tb.sv TOP_MODULE data_serializer_tb
     PREFIX VDataSerializerTb
     INCLUDE_DIRS src sim
-    VERILATOR_ARGS -Wno-initialdly --timing --trace-vcd)
+    VERILATOR_ARGS -Wno-initialdly --timing --coverage --trace-vcd)
 
 add_executable(VSimPrbsChecker cpp/sim_prbs_checker.cpp)
 verilate(VSimPrbsChecker
