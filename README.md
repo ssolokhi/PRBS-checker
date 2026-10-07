@@ -7,7 +7,7 @@
 Verilog code for measuring bit error rate of *pseudo-random bit sequences* (PRBS). The layout consists of 3 stages:
 transmitter, signal transfer, and receiver.
 
-## Transmitter
+## Transmitter (TX)
 
 The transmitter generates a PRBS using a *linear-feedback shift register* (LFSR). At each transmitter clock cycle,
 the last bit of the PRBS is sent away from the module. This allows testing serial data transfer, which is more 
@@ -16,11 +16,33 @@ relevant for my job.
 To ensure that the PRBS has a maximal period ($2^{n_{bits}} - 1$), specific bits of the LFSR are XOR'ed, see 
 [Table 2.1 in this article](https://www.physics.otago.ac.nz/reports/electronics/ETR2012-1.pdf).
 
+The transmitted patterns from multiple parallel lanes (typical for silicon sensors that I work with) are 
+serialized and sent at a higher frequency with some overhead for safety.
+
 ## Signal Transfer
 
-Currently, the PRBS pattern is sent via internal wiring. See ToDo list.
+Currently, the PRBS pattern is sent via internal wiring at the same frequency as the RX and TX.
 
-## Receiver 
+## Clock-Domain Crossing (CDC)
+
+The CDC is taken care of using a *first in-first out* (FIFO) structure. The FIFO uses 2 inpedentent clock domains 
+for writing and reading.
+
+### Gray Encoding
+
+To increase the chance of transmitting a value between the clock domains, such value are [Gray-encoded](https://en.wikipedia.org/wiki/Gray_code).
+Gray encoding ensures that incrementing the value by 1 only changes 1 bit of the binary representation, not more
+
+## Data Serialization 
+
+After the parallel data has been safely moved to the higher-frequency domain, it is serialized with a dedicated module.
+The serializer reads a whole word (i.e., sequence of $n_{lanes}$ bits) once per $n_{lanes}$ cycles, sends the word away
+ bit-by-bit, then fetches the next word, an so on.
+
+## Receiver (RX)
+
+At the RX side, the high-speed serial data is de-serialized back into multiple parallel lanes at the same frequency
+as the TX side. 
 
 The receiving side must compare a sequence of received PRBS bits with the generated PRBS.
 Since the generated PRBS is only known to the transmission side, synchronisation is needed.
@@ -50,6 +72,19 @@ red LED lights up.
 
 I try to follow the [lowRISC](https://github.com/lowRISC/style-guides/blob/master/VerilogCodingStyle.md) SystemVerilog coding style guide.
 
+## Repository Structure
+
+```txt
+.
+|-- .gihub/workflows/ actions for linting and simulating the design
+|-- src/ contains HDL description of all modules
+|-- sim/ contains testbenches for all modules
+|-- cpp/ contains C++ wrappers for running testbenched using Verilator
+|-- CMakeLists.txt instructionf for verilating all modules
+|-- constraints.xdc
+|-- README.md
+```
+
 ## ToDo
 
 1. Replace internal signal transfer with physical routing using I\O pins + cables
@@ -57,4 +92,3 @@ I try to follow the [lowRISC](https://github.com/lowRISC/style-guides/blob/maste
 3. Learn about 8b/10b encoding
 4. Separate transmitter and receiver into 2 FPGAs
 5. Add reading number of PRBS bits from JSON file using python
-6. Use FIFO to store data in case clocks have different frequencies

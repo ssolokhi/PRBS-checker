@@ -11,12 +11,21 @@ verilate(VSimLfsr
     PREFIX VLfsrTb
     INCLUDE_DIRS src sim
     VERILATOR_ARGS -Wno-initialdly --timing --trace-vcd)
+
+add_executable(VSimDataSerializer cpp/sim_data_serializer.cpp)
+verilate(VSimDataSerializer
+    SOURCES sim/data_serializer_tb.sv TOP_MODULE data_serializer_tb
+    PREFIX VDataSerializerTb
+    INCLUDE_DIRS src sim
+    VERILATOR_ARGS -Wno-initialdly --timing --coverage --trace-vcd)
+
 add_executable(VSimPrbsChecker cpp/sim_prbs_checker.cpp)
 verilate(VSimPrbsChecker
     SOURCES sim/prbs_checker_tb.sv src/prbs_checker_fsm_states.sv TOP_MODULE prbs_checker_tb
     PREFIX VPrbsCheckerTb
     INCLUDE_DIRS src sim
     VERILATOR_ARGS -Wno-initialdly -Wno-declfilename -Wno-coverign --timing --coverage --trace-vcd)
+
 add_executable(VSimPrbsCheckerTop cpp/sim_prbs_checker_top.cpp)
 verilate(VSimPrbsCheckerTop
     SOURCES sim/prbs_checker_top_tb.sv src/prbs_checker_fsm_states.sv TOP_MODULE prbs_checker_top_tb
